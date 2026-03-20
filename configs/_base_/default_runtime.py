@@ -9,8 +9,8 @@ num_worker = 32  # total worker in all gpu
 batch_size = 16  # total batch size in all gpu
 batch_size_val = None  # auto adapt to bs 1 for each gpu
 batch_size_test = 1
-epoch = 100  # total epoch, data loop = epoch // eval_epoch
-eval_epoch = 100  # sche total eval & checkpoint epoch
+epoch = 20  # total epoch, data loop = epoch // eval_epoch
+eval_epoch = 20  # sche total eval & checkpoint epoch
 save_freq = None  # None or int, None indicate only save model last
 
 eval_metric = "mIoU"
