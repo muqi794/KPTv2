@@ -76,15 +76,19 @@ def main():
 
     # load checkpoint
     if os.path.isfile(cfg.weight):
-        checkpoint = torch.load(cfg.weight)
+        checkpoint = torch.load(cfg.weight, map_location='cpu')
         state_dict = checkpoint['state_dict']
         new_state_dict = collections.OrderedDict()
         for k, v in state_dict.items():
-            name = k[7:]  # module.xxx.xxx -> xxx.xxx
+            if k.startswith('module.'):
+                name = k[7:]        # 移除 module. 前缀
+            else:
+                name = k            # 保留原始键名
             new_state_dict[name] = v
-        model.load_state_dict(new_state_dict, strict=True)
-        logger.info("=> loaded weight '{}' (epoch {})".format(cfg.weight, checkpoint['epoch']))
-        cfg.epochs = checkpoint['epoch']  # TODO: move to self
+        # 使用 strict=False 忽略多余的键（如 num_batches_tracked）
+        model.load_state_dict(new_state_dict, strict=False)
+        logger.info("=> loaded weight '{}' (epoch {})".format(cfg.weight, checkpoint.get('epoch', 'unknown')))
+        cfg.epochs = checkpoint.get('epoch', 0)  # TODO: move to self
     else:
         raise RuntimeError("=> no checkpoint found at '{}'".format(cfg.weight))
     TEST.build(cfg.test)(cfg, test_loader, model)
